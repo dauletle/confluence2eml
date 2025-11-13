@@ -4,8 +4,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from confluence2eml.utils import generate_markdown_filename, save_markdown_file
-from confluence2eml.client import ConfluenceClient
+from confluence2eml.core.utils import generate_markdown_filename, save_markdown_file
+from confluence2eml.core.client import ConfluenceClient
 
 
 @pytest.mark.integration
@@ -83,9 +83,9 @@ class TestMarkdownSavingIntegration:
         assert len(markdown_path.name) <= 200 + len(".md")  # max_length + extension
         assert markdown_path.read_text(encoding='utf-8') == sample_markdown_content
     
-    @patch('confluence2eml.client.subprocess')
-    @patch('confluence2eml.client.Path')
-    @patch('confluence2eml.client.tempfile')
+    @patch('confluence2eml.core.client.subprocess')
+    @patch('confluence2eml.core.client.Path')
+    @patch('confluence2eml.core.client.tempfile')
     def test_complete_workflow_with_markdown_saving(
         self, mock_tempfile, mock_path_class, mock_subprocess,
         temp_output_dir, mock_credentials, sample_markdown_content

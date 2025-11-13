@@ -2,7 +2,7 @@
 
 import pytest
 
-from confluence2eml.client import URLResolver, ConfluenceClientError
+from confluence2eml.core.client import URLResolver, ConfluenceClientError
 
 
 @pytest.mark.unit

@@ -19,11 +19,11 @@ def test_package_import():
 
 
 def test_main_module_exists():
-    """Test that the main confluence2eml.py module exists and is importable."""
-    # The main module should be importable as a script
+    """Test that the main module exists and is importable."""
+    # The main module should be importable
     import importlib.util
-    main_module_path = project_root / "confluence2eml.py"
-    assert main_module_path.exists(), "confluence2eml.py should exist"
+    main_module_path = project_root / "confluence2eml" / "main.py"
+    assert main_module_path.exists(), "confluence2eml/main.py should exist"
 
 
 def test_project_structure():
@@ -33,8 +33,9 @@ def test_project_structure():
         "setup.py",
         "requirements.txt",
         "README.md",
-        "confluence2eml.py",
+        "confluence2eml/main.py",
         "confluence2eml/__init__.py",
+        "confluence2eml/core/__init__.py",
     ]
     
     for file_path in required_files:

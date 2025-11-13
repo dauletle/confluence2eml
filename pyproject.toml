@@ -42,7 +42,7 @@ dev = [
 ]
 
 [project.scripts]
-confluence2eml = "confluence2eml:main"
+confluence2eml = "confluence2eml.main:main"
 
 [tool.setuptools]
 packages = ["confluence2eml"]

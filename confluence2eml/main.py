@@ -11,8 +11,8 @@ import os
 import sys
 from pathlib import Path
 
-from confluence2eml.client import ConfluenceClient, URLResolver, ConfluenceClientError
-from confluence2eml.utils import generate_markdown_filename, save_markdown_file
+from confluence2eml.core.client import ConfluenceClient, URLResolver, ConfluenceClientError
+from confluence2eml.core.utils import generate_markdown_filename, save_markdown_file
 
 # Configure logging
 logging.basicConfig(

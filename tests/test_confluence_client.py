@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 
-from confluence2eml.client import (
+from confluence2eml.core.client import (
     ConfluenceClient,
     ConfluenceClientError,
     ConfluenceAuthenticationError,
@@ -35,9 +35,9 @@ class TestConfluenceClient:
         )
         assert client.base_url == "https://company.atlassian.net"
     
-    @patch('confluence2eml.client.subprocess')
-    @patch('confluence2eml.client.Path')
-    @patch('confluence2eml.client.tempfile')
+    @patch('confluence2eml.core.client.subprocess')
+    @patch('confluence2eml.core.client.Path')
+    @patch('confluence2eml.core.client.tempfile')
     def test_get_page_content_subprocess_success(
         self, mock_tempfile, mock_path_class, mock_subprocess, mock_credentials
     ):
@@ -76,7 +76,7 @@ class TestConfluenceClient:
         assert 'title' in content
         assert 'attachments' in content
     
-    @patch('confluence2eml.client.subprocess')
+    @patch('confluence2eml.core.client.subprocess')
     def test_get_page_content_authentication_error(
         self, mock_subprocess, mock_credentials
     ):
@@ -96,7 +96,7 @@ class TestConfluenceClient:
         with pytest.raises(ConfluenceAuthenticationError):
             client.get_page_content("123456")
     
-    @patch('confluence2eml.client.subprocess')
+    @patch('confluence2eml.core.client.subprocess')
     def test_get_page_content_page_not_found_error(
         self, mock_subprocess, mock_credentials
     ):
@@ -116,7 +116,7 @@ class TestConfluenceClient:
         with pytest.raises(ConfluencePageNotFoundError):
             client.get_page_content("999999")
     
-    @patch('confluence2eml.client.subprocess')
+    @patch('confluence2eml.core.client.subprocess')
     def test_get_page_content_generic_error(
         self, mock_subprocess, mock_credentials
     ):

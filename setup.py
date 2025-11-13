@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     entry_points={
         "console_scripts": [
-            "confluence2eml=confluence2eml:main",
+            "confluence2eml=confluence2eml.main:main",
         ],
     },
     classifiers=[

@@ -7,7 +7,7 @@ and content extraction (with mocked API calls).
 import pytest
 from unittest.mock import patch, MagicMock
 
-from confluence2eml.client import (
+from confluence2eml.core.client import (
     ConfluenceClient,
     URLResolver,
     ConfluenceClientError,
@@ -33,9 +33,9 @@ class TestConfluenceIntegration:
         assert base_url == "https://company.atlassian.net"
         
         # Step 2: Initialize client
-        with patch('confluence2eml.client.subprocess') as mock_subprocess, \
-             patch('confluence2eml.client.Path') as mock_path_class, \
-             patch('confluence2eml.client.tempfile') as mock_tempfile:
+        with patch('confluence2eml.core.client.subprocess') as mock_subprocess, \
+             patch('confluence2eml.core.client.Path') as mock_path_class, \
+             patch('confluence2eml.core.client.tempfile') as mock_tempfile:
             
             # Setup mocks
             mock_tmp_file = MagicMock()
@@ -87,9 +87,9 @@ class TestConfluenceIntegration:
         assert "atlassian.net" in base_url or "company.com" in base_url
         
         # Verify client can be initialized
-        with patch('confluence2eml.client.subprocess') as mock_subprocess, \
-             patch('confluence2eml.client.Path') as mock_path_class, \
-             patch('confluence2eml.client.tempfile') as mock_tempfile:
+        with patch('confluence2eml.core.client.subprocess') as mock_subprocess, \
+             patch('confluence2eml.core.client.Path') as mock_path_class, \
+             patch('confluence2eml.core.client.tempfile') as mock_tempfile:
             
             mock_tmp_file = MagicMock()
             mock_tmp_file.name = "/tmp/test.md"
@@ -125,7 +125,7 @@ class TestConfluenceIntegration:
     
     def test_error_handling_authentication_failure(self, mock_credentials):
         """Test error handling for authentication failures."""
-        with patch('confluence2eml.client.subprocess') as mock_subprocess:
+        with patch('confluence2eml.core.client.subprocess') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 1
             mock_result.stderr = "401 Unauthorized"
@@ -143,8 +143,8 @@ class TestConfluenceIntegration:
     
     def test_error_handling_page_not_found(self, mock_credentials):
         """Test error handling for page not found."""
-        with patch('confluence2eml.client.subprocess') as mock_subprocess, \
-             patch('confluence2eml.client.tempfile') as mock_tempfile:
+        with patch('confluence2eml.core.client.subprocess') as mock_subprocess, \
+             patch('confluence2eml.core.client.tempfile') as mock_tempfile:
             
             mock_tmp_file = MagicMock()
             mock_tmp_file.name = "/tmp/test.md"
@@ -165,7 +165,7 @@ class TestConfluenceIntegration:
             
             # The error handling in get_page_content checks for "404" or "not found"
             # and raises ConfluencePageNotFoundError
-            from confluence2eml.client import ConfluencePageNotFoundError
+            from confluence2eml.core.client import ConfluencePageNotFoundError
             with pytest.raises(ConfluencePageNotFoundError):
                 client.get_page_content("999999")
 

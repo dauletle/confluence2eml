@@ -1,25 +1,22 @@
-"""Confluence to EML Exporter Package.
+"""Core modules for confluence2eml.
 
-A Python utility that converts Atlassian Confluence pages into
-self-contained Microsoft Outlook email files (.EML format).
+This package contains the core functionality modules:
+- client: Confluence API client wrapper
+- utils: Utility functions for file operations
 """
 
-__version__ = "0.1.0"
-
-# Import main components for easy access
-from confluence2eml.core import (
+from confluence2eml.core.client import (
     ConfluenceClient,
     ConfluenceClientError,
     ConfluenceAuthenticationError,
     ConfluencePageNotFoundError,
     URLResolver,
+)
+from confluence2eml.core.utils import (
     sanitize_filename,
     generate_markdown_filename,
     save_markdown_file,
 )
-
-# Import main function for CLI entry point
-from confluence2eml.main import main
 
 __all__ = [
     'ConfluenceClient',
@@ -30,5 +27,5 @@ __all__ = [
     'sanitize_filename',
     'generate_markdown_filename',
     'save_markdown_file',
-    'main',
 ]
+

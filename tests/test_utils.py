@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from confluence2eml.utils import (
+from confluence2eml.core.utils import (
     sanitize_filename,
     generate_markdown_filename,
     save_markdown_file,
