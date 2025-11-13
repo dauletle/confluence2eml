@@ -408,16 +408,16 @@ This project can be effectively executed in three two-week Scrum sprints, signif
 - [x] **Review**: Review MarkdownProcessor implementation and ensure it handles all markdown features correctly
 
 **Phase 2: HTML Sanitization (Week 1, Days 4-5)**
-- [ ] **Design**: Design HtmlProcessor module for HTML sanitization and email compatibility
-- [ ] **Implementation**: Implement HtmlProcessor module using BeautifulSoup, remove unsafe elements (scripts, iframes), ensure all images have alt text, validate HTML structure
-- [ ] **Testing**: Test HTML sanitization with various HTML inputs, test security element removal, test email compatibility
-- [ ] **Review**: Review HtmlProcessor implementation and ensure HTML is safe and email-client-compatible
+- [x] **Design**: Design HtmlProcessor module for HTML sanitization and email compatibility
+- [x] **Implementation**: Implement HtmlProcessor module using BeautifulSoup, remove unsafe elements (scripts, iframes), ensure all images have alt text, validate HTML structure
+- [x] **Testing**: Test HTML sanitization with various HTML inputs, test security element removal, test email compatibility
+- [x] **Review**: Review HtmlProcessor implementation and ensure HTML is safe and email-client-compatible
 
 **Phase 3: Basic EML Generation (Week 2, Days 1-3)**
-- [ ] **Design**: Design MimeGenerator module architecture and EML file generation workflow
-- [ ] **Implementation**: Implement MimeGenerator module using `email.message.EmailMessage`, create basic multipart message structure, implement HTML body addition, implement file serialization to .eml format
-- [ ] **Testing**: Test EML file generation, verify file can be opened in email clients, test message structure
-- [ ] **Review**: Review MimeGenerator implementation and ensure EML files are valid
+- [x] **Design**: Design MimeGenerator module architecture and EML file generation workflow
+- [x] **Implementation**: Implement MimeGenerator module using `email.message.EmailMessage`, create basic multipart message structure, implement HTML body addition, implement file serialization to .eml format
+- [x] **Testing**: Test EML file generation, verify file can be opened in email clients, test message structure
+- [x] **Review**: Review MimeGenerator implementation and ensure EML files are valid
 
 **Phase 4: CLI Implementation (Week 2, Days 4-5)**
 - [ ] **Design**: Design CLI interface with argparse, argument structure, and help messages

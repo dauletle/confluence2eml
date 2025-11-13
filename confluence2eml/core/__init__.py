@@ -5,6 +5,7 @@ This package contains the core functionality modules:
 - utils: Utility functions for file operations
 - markdown_processor: Markdown to HTML conversion
 - html_processor: HTML sanitization and email compatibility
+- mime_generator: MIME message generation and EML file creation
 """
 
 from confluence2eml.core.client import (
@@ -22,6 +23,10 @@ from confluence2eml.core.markdown_processor import (
     MarkdownProcessor,
     MarkdownProcessorError,
 )
+from confluence2eml.core.mime_generator import (
+    MimeGenerator,
+    MimeGeneratorError,
+)
 from confluence2eml.core.utils import (
     sanitize_filename,
     generate_markdown_filename,
@@ -38,6 +43,8 @@ __all__ = [
     'HtmlProcessorError',
     'MarkdownProcessor',
     'MarkdownProcessorError',
+    'MimeGenerator',
+    'MimeGeneratorError',
     'sanitize_filename',
     'generate_markdown_filename',
     'save_markdown_file',
