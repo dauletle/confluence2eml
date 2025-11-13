@@ -10,6 +10,8 @@ import logging
 import os
 import sys
 
+from confluence2eml.client import ConfluenceClient, URLResolver, ConfluenceClientError
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -126,10 +128,40 @@ def main():
             logger.error(str(e))
             sys.exit(1)
         
-        # TODO: Phase 3 - Library Integration and Content Extraction
-        # This will be implemented in Sprint 0, Phase 3
-        logger.info("Content extraction not yet implemented")
-        logger.info("This is a placeholder for Sprint 0, Phase 1 setup")
+        # Extract page ID and base URL from the provided URL
+        try:
+            page_id = URLResolver.extract_page_id(args.url)
+            base_url = URLResolver.extract_base_url(args.url)
+            logger.info(f"Extracted page ID: {page_id}")
+            logger.debug(f"Base URL: {base_url}")
+        except ConfluenceClientError as e:
+            logger.error(f"Invalid Confluence URL: {e}")
+            sys.exit(1)
+        
+        # Initialize Confluence client
+        try:
+            client = ConfluenceClient(base_url=base_url, user=user, token=token)
+            logger.debug("Confluence client initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize Confluence client: {e}")
+            sys.exit(1)
+        
+        # Extract page content
+        try:
+            logger.info("Extracting page content from Confluence...")
+            page_content = client.get_page_content(page_id)
+            logger.info(f"Successfully extracted content for page: {page_content.get('title', 'Unknown')}")
+            
+            # TODO: Phase 4 - Markdown File Saving
+            # The markdown content will be saved in Phase 4
+            logger.debug(f"Markdown content length: {len(page_content.get('markdown', ''))} characters")
+            
+        except ConfluenceClientError as e:
+            logger.error(f"Failed to extract page content: {e}")
+            sys.exit(1)
+        
+        # TODO: Phase 4 - Markdown File Saving
+        # TODO: Sprint 1 - Markdown to HTML and EML Generation
         
         logger.info("Export process completed successfully")
         
