@@ -3,6 +3,7 @@
 This package contains the core functionality modules:
 - client: Confluence API client wrapper
 - utils: Utility functions for file operations
+- markdown_processor: Markdown to HTML conversion
 """
 
 from confluence2eml.core.client import (
@@ -11,6 +12,10 @@ from confluence2eml.core.client import (
     ConfluenceAuthenticationError,
     ConfluencePageNotFoundError,
     URLResolver,
+)
+from confluence2eml.core.markdown_processor import (
+    MarkdownProcessor,
+    MarkdownProcessorError,
 )
 from confluence2eml.core.utils import (
     sanitize_filename,
@@ -24,6 +29,8 @@ __all__ = [
     'ConfluenceAuthenticationError',
     'ConfluencePageNotFoundError',
     'URLResolver',
+    'MarkdownProcessor',
+    'MarkdownProcessorError',
     'sanitize_filename',
     'generate_markdown_filename',
     'save_markdown_file',
