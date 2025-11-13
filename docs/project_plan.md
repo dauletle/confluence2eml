@@ -371,9 +371,9 @@ This project can be effectively executed in three two-week Scrum sprints, signif
 - [x] **Review**: Review project structure, dependency configuration, and ensure development workflow is established
 
 **Phase 2: Testing Infrastructure (Week 1, Days 4-5)**
-- [ ] **Design**: Design pytest structure, test organization, and CI/CD pipeline
-- [ ] **Implementation**: Set up basic pytest structure, create test fixtures, configure CI/CD pipeline, set up test coverage reporting
-- [ ] **Testing**: Test pytest framework, verify test discovery works, test CI/CD pipeline execution
+- [ ] **Design**: Design pytest structure, test organization, and test coverage reporting strategy
+- [ ] **Implementation**: Set up basic pytest structure, create test fixtures, set up test coverage reporting
+- [ ] **Testing**: Test pytest framework, verify test discovery works, verify test coverage reporting
 - [ ] **Review**: Review testing infrastructure and ensure it supports the development workflow
 
 **Phase 3: Library Integration and Content Extraction (Week 2, Days 1-3)**
@@ -390,7 +390,7 @@ This project can be effectively executed in three two-week Scrum sprints, signif
 
 **Deliverables**:
 - Project structure with `pyproject.toml` and all dependencies configured
-- Basic pytest structure and CI/CD pipeline in place
+- Basic pytest structure and test coverage reporting in place
 - Library integration with `confluence-markdown-exporter` working
 - Authentication via CLI arguments and environment variables
 - Markdown content extraction from Confluence URLs

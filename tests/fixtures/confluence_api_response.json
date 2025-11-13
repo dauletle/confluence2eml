@@ -1,0 +1,41 @@
+{
+  "id": "123456",
+  "type": "page",
+  "title": "Sample Page Title",
+  "space": {
+    "key": "SPACE",
+    "name": "Sample Space",
+    "type": "global"
+  },
+  "version": {
+    "number": 5,
+    "when": "2024-01-15T10:30:00.000Z",
+    "by": {
+      "type": "known",
+      "username": "testuser",
+      "displayName": "Test User"
+    }
+  },
+  "body": {
+    "storage": {
+      "value": "<h1>Sample Page Title</h1><p>This is a sample Confluence page with <strong>bold text</strong> and <em>italic text</em>.</p><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul><p><img src=\"/download/attachments/123456/image.png\" alt=\"Sample Image\" /></p>",
+      "representation": "storage"
+    }
+  },
+  "metadata": {
+    "labels": {
+      "results": [
+        {
+          "prefix": "global",
+          "name": "documentation",
+          "id": "label1"
+        }
+      ]
+    }
+  },
+  "_links": {
+    "webui": "/spaces/SPACE/pages/123456/Sample+Page+Title",
+    "self": "https://company.atlassian.net/wiki/rest/api/content/123456"
+  }
+}
+
