@@ -1,0 +1,398 @@
+/* Email-friendly CSS Stylesheet for Confluence-to-Email Exporter
+ * 
+ * This stylesheet is designed for email client compatibility.
+ * It uses only CSS properties that are widely supported across
+ * email clients (Outlook, Gmail, Apple Mail, etc.).
+ * 
+ * Key compatibility considerations:
+ * - Avoids CSS Grid, Flexbox, and advanced CSS3 features
+ * - Uses simple selectors and standard properties
+ * - All styles will be inlined by premailer for maximum compatibility
+ * - Uses web-safe fonts and standard color values
+ */
+
+/* ============================================
+   Base Typography
+   ============================================ */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333333;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* Prevent Outlook from adding extra spacing */
+table {
+    border-collapse: collapse;
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
+}
+
+/* ============================================
+   Headings
+   ============================================ */
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0052CC;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #0052CC;
+    line-height: 1.3;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #172B4D;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #172B4D;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+h4 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #172B4D;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+h5 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #172B4D;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+h6 {
+    font-size: 12px;
+    font-weight: bold;
+    color: #172B4D;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+/* ============================================
+   Paragraphs and Text
+   ============================================ */
+
+p {
+    margin-top: 0;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+/* Prevent Outlook from adding extra spacing */
+p {
+    mso-margin-top-alt: 0;
+    mso-margin-bottom-alt: 0;
+}
+
+/* ============================================
+   Links
+   ============================================ */
+
+a {
+    color: #0052CC;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: #0052CC;
+}
+
+a:hover {
+    color: #0065FF;
+    text-decoration: underline;
+}
+
+/* ============================================
+   Lists
+   ============================================ */
+
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-left: 30px;
+}
+
+li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+/* Nested lists */
+ul ul, ol ol, ul ol, ol ul {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    background-color: #ffffff;
+}
+
+th {
+    background-color: #0052CC;
+    color: #ffffff;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid #003D99;
+}
+
+td {
+    padding: 10px 12px;
+    border: 1px solid #DFE1E6;
+    background-color: #ffffff;
+}
+
+/* Alternate row colors for better readability */
+tr:nth-child(even) td {
+    background-color: #F4F5F7;
+}
+
+/* Table borders */
+table, th, td {
+    border: 1px solid #DFE1E6;
+}
+
+/* ============================================
+   Code Blocks and Inline Code
+   ============================================ */
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    background-color: #F4F5F7;
+    color: #172B4D;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #DFE1E6;
+}
+
+pre {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    background-color: #F4F5F7;
+    color: #172B4D;
+    padding: 12px;
+    border: 1px solid #DFE1E6;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+}
+
+/* Code highlighting classes (for codehilite extension) */
+.highlight {
+    background-color: #F4F5F7;
+    border: 1px solid #DFE1E6;
+    border-radius: 3px;
+    padding: 12px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    overflow-x: auto;
+}
+
+.highlight pre {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+}
+
+/* ============================================
+   Images
+   ============================================ */
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border: none;
+}
+
+/* ============================================
+   Blockquotes
+   ============================================ */
+
+blockquote {
+    margin: 12px 0;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-left: 4px solid #0052CC;
+    color: #5E6C84;
+    font-style: italic;
+    background-color: #F4F5F7;
+}
+
+/* ============================================
+   Horizontal Rules
+   ============================================ */
+
+hr {
+    border: none;
+    border-top: 1px solid #DFE1E6;
+    margin: 20px 0;
+    padding: 0;
+}
+
+/* ============================================
+   Strong and Emphasis
+   ============================================ */
+
+strong, b {
+    font-weight: bold;
+    color: #172B4D;
+}
+
+em, i {
+    font-style: italic;
+}
+
+/* ============================================
+   Definition Lists
+   ============================================ */
+
+dl {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+dt {
+    font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    color: #172B4D;
+}
+
+dd {
+    margin-left: 20px;
+    margin-bottom: 8px;
+}
+
+/* ============================================
+   Address and Contact Info
+   ============================================ */
+
+address {
+    font-style: italic;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+/* ============================================
+   Miscellaneous Elements
+   ============================================ */
+
+abbr, acronym {
+    border-bottom: 1px dotted #5E6C84;
+    cursor: help;
+}
+
+mark {
+    background-color: #FFE380;
+    color: #172B4D;
+    padding: 2px 4px;
+}
+
+del {
+    text-decoration: line-through;
+    color: #5E6C84;
+}
+
+ins {
+    text-decoration: underline;
+    background-color: #E3FCEF;
+}
+
+/* ============================================
+   Utility Classes (for future use)
+   ============================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+/* ============================================
+   Outlook-specific Fixes
+   ============================================ */
+
+/* Prevent Outlook from adding extra spacing */
+.ReadMsgBody {
+    width: 100%;
+}
+
+.ExternalClass {
+    width: 100%;
+}
+
+.ExternalClass, .ExternalClass p, .ExternalClass span,
+.ExternalClass font, .ExternalClass td, .ExternalClass div {
+    line-height: 100%;
+}
+
+/* Force Outlook to respect line heights */
+table, td {
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
+}
+
+/* Prevent iOS from auto-detecting phone numbers */
+a[x-apple-data-detectors] {
+    color: inherit !important;
+    text-decoration: none !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+}
+

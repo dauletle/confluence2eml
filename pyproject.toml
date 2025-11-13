@@ -47,6 +47,9 @@ confluence2eml = "confluence2eml.main:main"
 [tool.setuptools]
 packages = ["confluence2eml"]
 
+[tool.setuptools.package-data]
+confluence2eml = ["core/resources/*.css"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

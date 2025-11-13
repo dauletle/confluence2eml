@@ -7,6 +7,8 @@ from confluence2eml.core.utils import (
     sanitize_filename,
     generate_markdown_filename,
     save_markdown_file,
+    load_email_css,
+    wrap_html_with_css,
 )
 
 
@@ -203,4 +205,197 @@ class TestSaveMarkdownFile:
         
         assert saved_path.exists()
         assert saved_path.read_text(encoding='utf-8') == ""
+
+
+@pytest.mark.unit
+class TestLoadEmailCss:
+    """Test cases for load_email_css function."""
+    
+    def test_load_email_css_exists(self):
+        """Test that CSS file can be loaded."""
+        css = load_email_css()
+        assert isinstance(css, str)
+        assert len(css) > 0
+    
+    def test_load_email_css_contains_body_style(self):
+        """Test that CSS contains body styling."""
+        css = load_email_css()
+        assert 'body {' in css or 'body{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_heading_styles(self):
+        """Test that CSS contains heading styles."""
+        css = load_email_css()
+        assert 'h1 {' in css or 'h1{' in css.replace(' ', '')
+        assert 'h2 {' in css or 'h2{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_table_styles(self):
+        """Test that CSS contains table styling."""
+        css = load_email_css()
+        assert 'table {' in css or 'table{' in css.replace(' ', '')
+        assert 'th {' in css or 'th{' in css.replace(' ', '')
+        assert 'td {' in css or 'td{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_list_styles(self):
+        """Test that CSS contains list styling."""
+        css = load_email_css()
+        assert 'ul {' in css or 'ul{' in css.replace(' ', '')
+        assert 'ol {' in css or 'ol{' in css.replace(' ', '')
+        assert 'li {' in css or 'li{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_link_styles(self):
+        """Test that CSS contains link styling."""
+        css = load_email_css()
+        assert 'a {' in css or 'a{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_code_styles(self):
+        """Test that CSS contains code block styling."""
+        css = load_email_css()
+        assert 'code {' in css or 'code{' in css.replace(' ', '')
+        assert 'pre {' in css or 'pre{' in css.replace(' ', '')
+    
+    def test_load_email_css_contains_typography(self):
+        """Test that CSS contains typography styles."""
+        css = load_email_css()
+        assert 'font-family' in css
+        assert 'font-size' in css
+        assert 'line-height' in css
+
+
+@pytest.mark.unit
+class TestWrapHtmlWithCss:
+    """Test cases for wrap_html_with_css function."""
+    
+    def test_wrap_html_with_css_simple_content(self):
+        """Test wrapping simple HTML content."""
+        html = "<h1>Hello</h1><p>World</p>"
+        wrapped = wrap_html_with_css(html)
+        
+        assert '<html' in wrapped.lower()
+        assert '<head' in wrapped.lower()
+        assert '<body' in wrapped.lower()
+        assert '<style' in wrapped.lower()
+        assert 'h1' in wrapped
+        assert 'Hello' in wrapped
+        assert 'World' in wrapped
+    
+    def test_wrap_html_with_css_includes_css(self):
+        """Test that wrapped HTML includes CSS content."""
+        html = "<p>Test</p>"
+        wrapped = wrap_html_with_css(html)
+        
+        # Check that CSS is included in style tag
+        assert '<style' in wrapped.lower()
+        assert '</style>' in wrapped.lower()
+        # CSS should contain body styling
+        css_start = wrapped.lower().find('<style')
+        css_end = wrapped.lower().find('</style>')
+        css_content = wrapped[css_start:css_end]
+        assert 'body' in css_content or 'font-family' in css_content
+    
+    def test_wrap_html_with_css_custom_css(self):
+        """Test wrapping HTML with custom CSS content."""
+        html = "<p>Test</p>"
+        custom_css = "body { color: red; }"
+        wrapped = wrap_html_with_css(html, css_content=custom_css)
+        
+        assert custom_css in wrapped
+        assert 'color: red' in wrapped
+    
+    def test_wrap_html_with_css_already_has_html_structure(self):
+        """Test wrapping HTML that already has html/head/body structure."""
+        html = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <h1>Hello</h1>
+</body>
+</html>"""
+        wrapped = wrap_html_with_css(html)
+        
+        # Should still have the structure
+        assert '<html' in wrapped.lower()
+        assert '<head' in wrapped.lower()
+        assert '<body' in wrapped.lower()
+        # Should have style tag
+        assert '<style' in wrapped.lower()
+        # Should preserve original content
+        assert 'Hello' in wrapped
+    
+    def test_wrap_html_with_css_has_body_tag_only(self):
+        """Test wrapping HTML that has body tag but no html/head."""
+        html = "<body><p>Content</p></body>"
+        wrapped = wrap_html_with_css(html)
+        
+        assert '<html' in wrapped.lower()
+        assert '<head' in wrapped.lower()
+        assert '<body' in wrapped.lower()
+        assert '<style' in wrapped.lower()
+        assert 'Content' in wrapped
+    
+    def test_wrap_html_with_css_preserves_content(self):
+        """Test that wrapping preserves all original content."""
+        html = """<h1>Title</h1>
+<p>Paragraph with <strong>bold</strong> text.</p>
+<ul>
+    <li>Item 1</li>
+    <li>Item 2</li>
+</ul>
+<table>
+    <tr><th>Header</th></tr>
+    <tr><td>Data</td></tr>
+</table>"""
+        wrapped = wrap_html_with_css(html)
+        
+        assert 'Title' in wrapped
+        assert 'Paragraph' in wrapped
+        assert '<strong>bold</strong>' in wrapped
+        assert 'Item 1' in wrapped
+        assert 'Item 2' in wrapped
+        assert '<table>' in wrapped
+        assert 'Header' in wrapped
+        assert 'Data' in wrapped
+    
+    def test_wrap_html_with_css_includes_meta_tags(self):
+        """Test that wrapped HTML includes meta tags."""
+        html = "<p>Test</p>"
+        wrapped = wrap_html_with_css(html)
+        
+        assert 'charset' in wrapped.lower()
+        assert 'utf-8' in wrapped.lower()
+        assert 'viewport' in wrapped.lower() or 'meta' in wrapped.lower()
+    
+    def test_wrap_html_with_css_empty_content(self):
+        """Test wrapping empty HTML content."""
+        html = ""
+        wrapped = wrap_html_with_css(html)
+        
+        assert '<html' in wrapped.lower()
+        assert '<body' in wrapped.lower()
+        assert '<style' in wrapped.lower()
+    
+    def test_wrap_html_with_css_complex_content(self):
+        """Test wrapping complex HTML with various elements."""
+        html = """<h1>Main Title</h1>
+<h2>Subtitle</h2>
+<p>Paragraph with <a href="http://example.com">link</a>.</p>
+<blockquote>Quote text</blockquote>
+<pre><code>code block</code></pre>
+<img src="image.png" alt="Image">"""
+        wrapped = wrap_html_with_css(html)
+        
+        assert 'Main Title' in wrapped
+        assert 'Subtitle' in wrapped
+        assert 'link' in wrapped
+        assert 'Quote text' in wrapped
+        assert 'code block' in wrapped
+        assert 'image.png' in wrapped
+    
+    def test_wrap_html_with_css_doctype(self):
+        """Test that wrapped HTML includes DOCTYPE."""
+        html = "<p>Test</p>"
+        wrapped = wrap_html_with_css(html)
+        
+        assert wrapped.strip().startswith('<!DOCTYPE')
 
