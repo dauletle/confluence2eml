@@ -13,6 +13,7 @@ from pathlib import Path
 
 from confluence2eml.core.client import ConfluenceClient, URLResolver, ConfluenceClientError
 from confluence2eml.core.html_processor import HtmlProcessor, HtmlProcessorError
+from confluence2eml.core.css_inliner import CssInliner, CssInlinerError
 from confluence2eml.core.markdown_processor import MarkdownProcessor, MarkdownProcessorError
 from confluence2eml.core.mime_generator import MimeGenerator, MimeGeneratorError
 from confluence2eml.core.utils import generate_markdown_filename, save_markdown_file
@@ -214,6 +215,20 @@ def main():
             logger.error(f"Unexpected error during HTML sanitization: {e}", exc_info=True)
             sys.exit(1)
         
+        # Inline CSS for email compatibility
+        inlined_html = None
+        try:
+            logger.info("Inlining CSS styles for email compatibility...")
+            css_inliner = CssInliner(base_url=base_url)
+            inlined_html = css_inliner.inline(sanitized_html, wrap_with_css=True)
+            logger.info(f"Successfully inlined CSS ({len(inlined_html)} characters)")
+        except CssInlinerError as e:
+            logger.error(f"Failed to inline CSS: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error during CSS inlining: {e}", exc_info=True)
+            sys.exit(1)
+        
         # Validate output path
         try:
             output_path = Path(args.output)
@@ -236,12 +251,12 @@ def main():
             email_subject = f"Confluence Export: {page_title}"
             
             # Generate plain text from HTML for fallback
-            plain_text = mime_generator._html_to_plain_text(sanitized_html)
+            plain_text = mime_generator._html_to_plain_text(inlined_html)
             
             # Create and save the EML file
             eml_path = mime_generator.create_and_save(
                 subject=email_subject,
-                html_content=sanitized_html,
+                html_content=inlined_html,
                 output_path=args.output,
                 plain_text=plain_text
             )
