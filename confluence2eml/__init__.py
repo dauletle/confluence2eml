@@ -14,6 +14,11 @@ from confluence2eml.client import (
     ConfluencePageNotFoundError,
     URLResolver,
 )
+from confluence2eml.utils import (
+    sanitize_filename,
+    generate_markdown_filename,
+    save_markdown_file,
+)
 
 __all__ = [
     'ConfluenceClient',
@@ -21,4 +26,7 @@ __all__ = [
     'ConfluenceAuthenticationError',
     'ConfluencePageNotFoundError',
     'URLResolver',
+    'sanitize_filename',
+    'generate_markdown_filename',
+    'save_markdown_file',
 ]

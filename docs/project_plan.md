@@ -383,10 +383,10 @@ This project can be effectively executed in three two-week Scrum sprints, signif
 - [x] **Review**: Review library integration approach and ensure robust error handling
 
 **Phase 4: Markdown File Saving (Week 2, Days 4-5)**
-- [ ] **Design**: Design Markdown file saving mechanism with automatic filename generation from page title
-- [ ] **Implementation**: Implement Markdown content saving to file, implement filename generation from Confluence page title, handle filename sanitization
-- [ ] **Testing**: Test Markdown file saving with various page titles, test filename generation and sanitization, verify file output
-- [ ] **Review**: Review Markdown saving implementation and ensure it works correctly as part of the output
+- [x] **Design**: Design Markdown file saving mechanism with automatic filename generation from page title
+- [x] **Implementation**: Implement Markdown content saving to file, implement filename generation from Confluence page title, handle filename sanitization
+- [x] **Testing**: Test Markdown file saving with various page titles, test filename generation and sanitization, verify file output
+- [x] **Review**: Review Markdown saving implementation and ensure it works correctly as part of the output
 
 **Deliverables**:
 - Project structure with `pyproject.toml` and all dependencies configured

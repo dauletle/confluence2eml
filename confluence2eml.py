@@ -9,8 +9,10 @@ import argparse
 import logging
 import os
 import sys
+from pathlib import Path
 
 from confluence2eml.client import ConfluenceClient, URLResolver, ConfluenceClientError
+from confluence2eml.utils import generate_markdown_filename, save_markdown_file
 
 # Configure logging
 logging.basicConfig(
@@ -150,20 +152,43 @@ def main():
         try:
             logger.info("Extracting page content from Confluence...")
             page_content = client.get_page_content(page_id)
-            logger.info(f"Successfully extracted content for page: {page_content.get('title', 'Unknown')}")
-            
-            # TODO: Phase 4 - Markdown File Saving
-            # The markdown content will be saved in Phase 4
+            page_title = page_content.get('title', 'Unknown')
+            logger.info(f"Successfully extracted content for page: {page_title}")
             logger.debug(f"Markdown content length: {len(page_content.get('markdown', ''))} characters")
             
         except ConfluenceClientError as e:
             logger.error(f"Failed to extract page content: {e}")
             sys.exit(1)
         
-        # TODO: Phase 4 - Markdown File Saving
+        # Save Markdown file (always done before processing)
+        saved_path = None
+        try:
+            # Determine output directory from EML output path
+            eml_output_path = Path(args.output)
+            output_dir = eml_output_path.parent if eml_output_path.parent != Path('.') else None
+            
+            # Generate Markdown filename from page title
+            markdown_path = generate_markdown_filename(page_title, output_dir)
+            
+            # Save the Markdown content
+            logger.info(f"Saving Markdown file: {markdown_path}")
+            saved_path = save_markdown_file(
+                content=page_content.get('markdown', ''),
+                filepath=markdown_path
+            )
+            logger.info(f"Markdown file saved successfully: {saved_path}")
+            
+        except Exception as e:
+            logger.error(f"Failed to save Markdown file: {e}", exc_info=True)
+            sys.exit(1)
+        
         # TODO: Sprint 1 - Markdown to HTML and EML Generation
         
         logger.info("Export process completed successfully")
+        logger.info(f"Output files:")
+        if saved_path:
+            logger.info(f"  - Markdown: {saved_path}")
+        logger.info(f"  - EML: {args.output} (to be generated in Sprint 1)")
         
     except KeyboardInterrupt:
         logger.info("Process interrupted by user")
