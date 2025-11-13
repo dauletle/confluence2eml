@@ -12,6 +12,9 @@ import sys
 from pathlib import Path
 
 from confluence2eml.core.client import ConfluenceClient, URLResolver, ConfluenceClientError
+from confluence2eml.core.html_processor import HtmlProcessor, HtmlProcessorError
+from confluence2eml.core.markdown_processor import MarkdownProcessor, MarkdownProcessorError
+from confluence2eml.core.mime_generator import MimeGenerator, MimeGeneratorError
 from confluence2eml.core.utils import generate_markdown_filename, save_markdown_file
 
 # Configure logging
@@ -87,6 +90,7 @@ Examples:
     parser.add_argument(
         '--output',
         required=True,
+        type=str,
         help='Filepath to save the final .eml file (e.g., "export.eml")'
     )
     
@@ -182,13 +186,84 @@ def main():
             logger.error(f"Failed to save Markdown file: {e}", exc_info=True)
             sys.exit(1)
         
-        # TODO: Sprint 1 - Markdown to HTML and EML Generation
+        # Convert Markdown to HTML
+        html_content = None
+        try:
+            logger.info("Converting Markdown to HTML...")
+            markdown_processor = MarkdownProcessor()
+            html_content = markdown_processor.convert(page_content.get('markdown', ''))
+            logger.info(f"Successfully converted Markdown to HTML ({len(html_content)} characters)")
+        except MarkdownProcessorError as e:
+            logger.error(f"Failed to convert Markdown to HTML: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error during Markdown conversion: {e}", exc_info=True)
+            sys.exit(1)
         
-        logger.info("Export process completed successfully")
-        logger.info(f"Output files:")
+        # Sanitize HTML for email compatibility
+        sanitized_html = None
+        try:
+            logger.info("Sanitizing HTML for email compatibility...")
+            html_processor = HtmlProcessor()
+            sanitized_html = html_processor.sanitize(html_content)
+            logger.info(f"Successfully sanitized HTML ({len(sanitized_html)} characters)")
+        except HtmlProcessorError as e:
+            logger.error(f"Failed to sanitize HTML: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error during HTML sanitization: {e}", exc_info=True)
+            sys.exit(1)
+        
+        # Validate output path
+        try:
+            output_path = Path(args.output)
+            # Ensure output directory exists
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            # Validate that output path is writable (check parent directory)
+            if not os.access(output_path.parent, os.W_OK):
+                raise ValueError(f"Cannot write to output directory: {output_path.parent}")
+        except (OSError, ValueError) as e:
+            logger.error(f"Invalid output path: {e}")
+            sys.exit(1)
+        
+        # Generate EML file
+        eml_path = None
+        try:
+            logger.info("Generating EML file...")
+            mime_generator = MimeGenerator()
+            
+            # Create email subject from page title
+            email_subject = f"Confluence Export: {page_title}"
+            
+            # Generate plain text from HTML for fallback
+            plain_text = mime_generator._html_to_plain_text(sanitized_html)
+            
+            # Create and save the EML file
+            eml_path = mime_generator.create_and_save(
+                subject=email_subject,
+                html_content=sanitized_html,
+                output_path=args.output,
+                plain_text=plain_text
+            )
+            logger.info(f"Successfully generated EML file: {eml_path}")
+        except MimeGeneratorError as e:
+            logger.error(f"Failed to generate EML file: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error during EML generation: {e}", exc_info=True)
+            sys.exit(1)
+        
+        # Success summary
+        logger.info("=" * 60)
+        logger.info("Export process completed successfully!")
+        logger.info("=" * 60)
+        logger.info("Output files:")
         if saved_path:
-            logger.info(f"  - Markdown: {saved_path}")
-        logger.info(f"  - EML: {args.output} (to be generated in Sprint 1)")
+            logger.info(f"  ✓ Markdown: {saved_path}")
+        if eml_path:
+            logger.info(f"  ✓ EML: {eml_path}")
+            logger.info(f"    File size: {eml_path.stat().st_size:,} bytes")
+        logger.info("=" * 60)
         
     except KeyboardInterrupt:
         logger.info("Process interrupted by user")
