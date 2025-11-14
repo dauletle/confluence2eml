@@ -71,10 +71,36 @@ Provide credentials directly via CLI flags (see Usage section below).
 
 ### Getting an API Token
 
-1. Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
-2. Click "Create API token"
-3. Copy the generated token
-4. Use this token with your email address for authentication
+We recommend creating an **API token with scopes** for enhanced security. This allows you to grant only the minimum permissions needed for the tool to function.
+
+#### Recommended: Create an API Token with Scopes
+
+1. Log in to [Atlassian Account Security Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
+2. Select **"Create API token" with scopes**
+3. Give your API token a descriptive name (e.g., "Confluence2EML Exporter")
+4. Select an **expiration date** (1 to 365 days)
+5. Select **Confluence** as the app
+6. Select the following **scopes** (minimum required permissions):
+   - **View** - Read Confluence page content
+   - **Download** - Download attachments and images from pages
+7. Select **Create**
+8. **Copy the token immediately** - you won't be able to view it again after this step
+9. Save the token securely (e.g., in a password manager)
+
+> **Note:** The tool only requires read and download permissions. It does not modify, create, or delete any Confluence content, so write or delete permissions are not needed.
+
+#### Alternative: Create an API Token Without Scopes
+
+If you need to use an app that doesn't currently support API tokens with scopes, you can create a token without scopes:
+
+1. Log in to [Atlassian Account Security Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
+2. Select **"Create API token"** (without scopes)
+3. Give your API token a descriptive name
+4. Select an expiration date (1 to 365 days)
+5. Select **Create**
+6. Copy and save the token securely
+
+> **Security Note:** API tokens with scopes are more secure as they follow the principle of least privilege. For more information, see the [Atlassian documentation on managing API tokens](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
 
 ## Usage
 
