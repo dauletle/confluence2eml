@@ -188,10 +188,14 @@ class TestCLIMainFunction:
     @patch('confluence2eml.main.ConfluenceClient')
     @patch('confluence2eml.main.MarkdownProcessor')
     @patch('confluence2eml.main.HtmlProcessor')
+    @patch('confluence2eml.main.CssInliner')
+    @patch('confluence2eml.main.ImageProcessor')
     @patch('confluence2eml.main.MimeGenerator')
     def test_main_successful_export(
         self,
         mock_mime_gen,
+        mock_image_proc,
+        mock_css_inliner,
         mock_html_proc,
         mock_md_proc,
         mock_client,
@@ -221,6 +225,17 @@ class TestCLIMainFunction:
         mock_html_processor = MagicMock()
         mock_html_processor.sanitize.return_value = '<h1>Test Page</h1><p>Content here.</p>'
         mock_html_proc.return_value = mock_html_processor
+        
+        mock_css_inliner_instance = MagicMock()
+        mock_css_inliner_instance.inline.return_value = '<h1>Test Page</h1><p>Content here.</p>'
+        mock_css_inliner.return_value = mock_css_inliner_instance
+        
+        mock_image_processor_instance = MagicMock()
+        mock_image_processor_instance.process_images.return_value = (
+            '<h1>Test Page</h1><p>Content here.</p>',
+            []
+        )
+        mock_image_proc.return_value = mock_image_processor_instance
         
         mock_mime_gen_instance = MagicMock()
         mock_mime_gen_instance._html_to_plain_text.return_value = 'Test Page\n\nContent here.'
@@ -372,8 +387,12 @@ class TestCLIMainFunction:
     @patch('confluence2eml.main.ConfluenceClient')
     @patch('confluence2eml.main.MarkdownProcessor')
     @patch('confluence2eml.main.HtmlProcessor')
+    @patch('confluence2eml.main.CssInliner')
+    @patch('confluence2eml.main.ImageProcessor')
     def test_main_html_sanitization_error(
         self,
+        mock_image_proc,
+        mock_css_inliner,
         mock_html_proc,
         mock_md_proc,
         mock_client,
@@ -417,10 +436,14 @@ class TestCLIMainFunction:
     @patch('confluence2eml.main.ConfluenceClient')
     @patch('confluence2eml.main.MarkdownProcessor')
     @patch('confluence2eml.main.HtmlProcessor')
+    @patch('confluence2eml.main.CssInliner')
+    @patch('confluence2eml.main.ImageProcessor')
     @patch('confluence2eml.main.MimeGenerator')
     def test_main_eml_generation_error(
         self,
         mock_mime_gen,
+        mock_image_proc,
+        mock_css_inliner,
         mock_html_proc,
         mock_md_proc,
         mock_client,
