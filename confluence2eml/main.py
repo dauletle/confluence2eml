@@ -14,6 +14,7 @@ from pathlib import Path
 from confluence2eml.core.client import ConfluenceClient, URLResolver, ConfluenceClientError
 from confluence2eml.core.html_processor import HtmlProcessor, HtmlProcessorError
 from confluence2eml.core.css_inliner import CssInliner, CssInlinerError
+from confluence2eml.core.image_processor import ImageProcessor, ImageProcessorError
 from confluence2eml.core.markdown_processor import MarkdownProcessor, MarkdownProcessorError
 from confluence2eml.core.mime_generator import MimeGenerator, MimeGeneratorError
 from confluence2eml.core.utils import generate_markdown_filename, save_markdown_file
@@ -229,6 +230,30 @@ def main():
             logger.error(f"Unexpected error during CSS inlining: {e}", exc_info=True)
             sys.exit(1)
         
+        # Process images and embed as CIDs
+        processed_html = None
+        embedded_images = []
+        try:
+            logger.info("Processing images and embedding as CIDs...")
+            image_processor = ImageProcessor(
+                base_url=base_url,
+                user=user,
+                token=token
+            )
+            processed_html, embedded_images = image_processor.process_images(inlined_html)
+            logger.info(
+                f"Successfully processed images: {len(embedded_images)} image(s) embedded, "
+                f"output HTML length: {len(processed_html)} characters"
+            )
+            # Close the image processor session
+            image_processor.close()
+        except ImageProcessorError as e:
+            logger.error(f"Failed to process images: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error during image processing: {e}", exc_info=True)
+            sys.exit(1)
+        
         # Validate output path
         try:
             output_path = Path(args.output)
@@ -251,14 +276,15 @@ def main():
             email_subject = f"Confluence Export: {page_title}"
             
             # Generate plain text from HTML for fallback
-            plain_text = mime_generator._html_to_plain_text(inlined_html)
+            plain_text = mime_generator._html_to_plain_text(processed_html)
             
-            # Create and save the EML file
+            # Create and save the EML file with embedded images
             eml_path = mime_generator.create_and_save(
                 subject=email_subject,
-                html_content=inlined_html,
+                html_content=processed_html,
                 output_path=args.output,
-                plain_text=plain_text
+                plain_text=plain_text,
+                images=embedded_images if embedded_images else None
             )
             logger.info(f"Successfully generated EML file: {eml_path}")
         except MimeGeneratorError as e:

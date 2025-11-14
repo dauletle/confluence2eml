@@ -451,10 +451,10 @@ This project can be effectively executed in three two-week Scrum sprints, signif
 - [x] **Review**: Review CSS inlining implementation and ensure email client compatibility
 
 **Phase 3: Image Processing and CID Embedding (Week 2, Days 1-4)**
-- [ ] **Design**: Design ImageProcessor module for finding, downloading, and embedding images as CIDs
-- [ ] **Implementation**: Implement ImageProcessor module, parse HTML for `<img>` tags, download images with authentication, generate unique Content-IDs (CIDs), rewrite HTML src attributes to use CIDs, attach images to EmailMessage with CIDs
-- [ ] **Testing**: Test image finding and downloading, test CID generation and embedding, test image attachment to email, test email rendering with embedded images, test offline rendering
-- [ ] **Review**: Review ImageProcessor implementation and ensure images are properly embedded
+- [x] **Design**: Design ImageProcessor module for finding, downloading, and embedding images as CIDs
+- [x] **Implementation**: Implement ImageProcessor module, parse HTML for `<img>` tags, download images with authentication, generate unique Content-IDs (CIDs), rewrite HTML src attributes to use CIDs, attach images to EmailMessage with CIDs
+- [x] **Testing**: Test image finding and downloading, test CID generation and embedding, test image attachment to email, test email rendering with embedded images, test offline rendering
+- [x] **Review**: Review ImageProcessor implementation and ensure images are properly embedded
 
 **Phase 4: Integration and Testing (Week 2, Day 5)**
 - [ ] **Design**: Design integration testing for complete pipeline with images

@@ -8,6 +8,7 @@ from confluence2eml.core.mime_generator import (
     MimeGenerator,
     MimeGeneratorError,
 )
+from confluence2eml.core.image_processor import ImageData
 
 
 @pytest.mark.unit
@@ -515,4 +516,167 @@ This is **bold** and *italic* text.
         assert msg1['Subject'] == "Message 1"
         assert msg2['Subject'] == "Message 2"
         assert msg1['Message-ID'] != msg2['Message-ID']
+
+
+@pytest.mark.unit
+class TestMimeGeneratorCIDAttachments:
+    """Test cases for CID attachment functionality."""
+    
+    def test_create_message_with_cid_images(self):
+        """Test creating message with CID-embedded images."""
+        generator = MimeGenerator()
+        
+        # Create mock ImageData objects
+        from email.utils import make_msgid
+        image1 = ImageData(
+            cid=make_msgid(domain='test'),
+            data=b'fake_png_data',
+            content_type='image/png',
+            filename='image1.png'
+        )
+        image2 = ImageData(
+            cid=make_msgid(domain='test'),
+            data=b'fake_jpeg_data',
+            content_type='image/jpeg',
+            filename='image2.jpg'
+        )
+        
+        html = '<img src="cid:test123" /><img src="cid:test456" />'
+        msg = generator.create_message(
+            subject="Test with Images",
+            html_content=html,
+            images=[image1, image2]
+        )
+        
+        # Message should be multipart
+        assert msg.is_multipart()
+        
+        # Count image attachments
+        image_parts = []
+        for part in msg.walk():
+            if part.get_content_maintype() == 'image':
+                image_parts.append(part)
+        
+        assert len(image_parts) == 2
+    
+    def test_create_message_with_cid_images_verifies_cid(self):
+        """Test that CID images have correct Content-ID headers."""
+        generator = MimeGenerator()
+        
+        from email.utils import make_msgid
+        cid = make_msgid(domain='test')
+        image = ImageData(
+            cid=cid,
+            data=b'fake_image_data',
+            content_type='image/png',
+            filename='test.png'
+        )
+        
+        html = '<img src="cid:test123" />'
+        msg = generator.create_message(
+            subject="Test",
+            html_content=html,
+            images=[image]
+        )
+        
+        # Find the image part
+        image_part = None
+        for part in msg.walk():
+            if part.get_content_maintype() == 'image':
+                image_part = part
+                break
+        
+        assert image_part is not None
+        # Check that Content-ID header is set
+        content_id = image_part.get('Content-ID')
+        assert content_id is not None
+        # CID should match (may have angle brackets)
+        cid_value = cid[1:-1] if cid.startswith('<') and cid.endswith('>') else cid
+        assert cid_value in content_id or cid in content_id
+    
+    def test_create_message_with_no_images(self):
+        """Test creating message without images (images=None)."""
+        generator = MimeGenerator()
+        msg = generator.create_message(
+            subject="Test",
+            html_content="<p>No images</p>",
+            images=None
+        )
+        
+        # Should still work normally
+        assert msg['Subject'] == "Test"
+        assert msg.is_multipart()
+        
+        # Should not have image parts
+        image_parts = [p for p in msg.walk() if p.get_content_maintype() == 'image']
+        assert len(image_parts) == 0
+    
+    def test_create_message_with_empty_images_list(self):
+        """Test creating message with empty images list."""
+        generator = MimeGenerator()
+        msg = generator.create_message(
+            subject="Test",
+            html_content="<p>No images</p>",
+            images=[]
+        )
+        
+        # Should still work normally
+        assert msg['Subject'] == "Test"
+        assert msg.is_multipart()
+        
+        # Should not have image parts
+        image_parts = [p for p in msg.walk() if p.get_content_maintype() == 'image']
+        assert len(image_parts) == 0
+    
+    def test_create_and_save_with_cid_images(self, temp_output_dir):
+        """Test create_and_save with CID images."""
+        generator = MimeGenerator()
+        
+        from email.utils import make_msgid
+        image = ImageData(
+            cid=make_msgid(domain='test'),
+            data=b'fake_image_data',
+            content_type='image/png',
+            filename='test.png'
+        )
+        
+        output_path = temp_output_dir / "test_with_images.eml"
+        path = generator.create_and_save(
+            subject="Test with Images",
+            html_content='<img src="cid:test123" />',
+            output_path=str(output_path),
+            images=[image]
+        )
+        
+        assert path.exists()
+        
+        # Verify the saved file contains the image
+        with open(path, 'rb') as f:
+            msg = email.message_from_bytes(f.read())
+        
+        image_parts = [p for p in msg.walk() if p.get_content_maintype() == 'image']
+        assert len(image_parts) == 1
+    
+    def test_create_message_handles_image_attachment_error(self):
+        """Test that image attachment errors don't crash the message creation."""
+        generator = MimeGenerator()
+        
+        # Create an invalid ImageData (missing required attributes)
+        # This will cause an error when trying to attach
+        class InvalidImageData:
+            def __init__(self):
+                self.cid = "<invalid>"
+                # Missing data, content_type, etc.
+        
+        invalid_image = InvalidImageData()
+        
+        # Should not raise an error, but log a warning
+        msg = generator.create_message(
+            subject="Test",
+            html_content="<p>Content</p>",
+            images=[invalid_image]  # type: ignore
+        )
+        
+        # Message should still be created
+        assert msg['Subject'] == "Test"
 

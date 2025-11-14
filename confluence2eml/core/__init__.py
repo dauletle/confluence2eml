@@ -6,6 +6,7 @@ This package contains the core functionality modules:
 - markdown_processor: Markdown to HTML conversion
 - html_processor: HTML sanitization and email compatibility
 - css_inliner: CSS inlining for email compatibility
+- image_processor: Image processing and CID embedding for email
 - mime_generator: MIME message generation and EML file creation
 """
 
@@ -23,6 +24,12 @@ from confluence2eml.core.html_processor import (
 from confluence2eml.core.css_inliner import (
     CssInliner,
     CssInlinerError,
+)
+from confluence2eml.core.image_processor import (
+    ImageProcessor,
+    ImageProcessorError,
+    ImageDownloadError,
+    ImageData,
 )
 from confluence2eml.core.markdown_processor import (
     MarkdownProcessor,
@@ -48,6 +55,10 @@ __all__ = [
     'HtmlProcessorError',
     'CssInliner',
     'CssInlinerError',
+    'ImageProcessor',
+    'ImageProcessorError',
+    'ImageDownloadError',
+    'ImageData',
     'MarkdownProcessor',
     'MarkdownProcessorError',
     'MimeGenerator',

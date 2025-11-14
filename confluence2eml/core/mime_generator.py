@@ -9,7 +9,12 @@ import mimetypes
 from email.message import EmailMessage
 from email.utils import formatdate, make_msgid
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
+
+try:
+    from confluence2eml.core.image_processor import ImageData
+except ImportError:
+    ImageData = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +70,8 @@ class MimeGenerator:
         plain_text: Optional[str] = None,
         from_addr: Optional[str] = None,
         to_addr: Optional[str] = None,
-        date: Optional[str] = None
+        date: Optional[str] = None,
+        images: Optional[List] = None
     ) -> EmailMessage:
         """Create an EmailMessage with HTML and optional plain text content.
         
@@ -78,6 +84,7 @@ class MimeGenerator:
             from_addr: 'From' email address (default: uses default_from)
             to_addr: 'To' email address (default: uses default_to)
             date: Email date (default: current date/time)
+            images: Optional list of ImageData objects to attach with CIDs
             
         Returns:
             EmailMessage object ready for serialization
@@ -116,6 +123,39 @@ class MimeGenerator:
             
             # Add HTML as an alternative
             msg.add_alternative(html_content, subtype='html')
+            
+            # Attach images with CIDs if provided
+            if images:
+                logger.debug(f"Attaching {len(images)} image(s) with CIDs...")
+                for image_data in images:
+                    try:
+                        # Extract CID (remove angle brackets if present)
+                        cid = image_data.cid
+                        if cid.startswith('<') and cid.endswith('>'):
+                            cid = cid[1:-1]
+                        
+                        # Attach image with CID
+                        msg.add_attachment(
+                            image_data.data,
+                            maintype=image_data.maintype,
+                            subtype=image_data.subtype,
+                            cid=cid,
+                            filename=image_data.filename
+                        )
+                        logger.debug(
+                            f"Attached image: CID={cid}, "
+                            f"type={image_data.content_type}, "
+                            f"size={len(image_data.data)} bytes"
+                        )
+                    except Exception as e:
+                        logger.warning(f"Failed to attach image with CID {image_data.cid}: {e}")
+                        # Continue with other images
+                        continue
+                
+                # Ensure message is multipart/related when images are attached
+                # This is automatically handled by add_attachment, but we verify
+                if msg.is_multipart():
+                    logger.debug(f"Message is multipart: {msg.get_content_type()}")
             
             logger.debug("EmailMessage created successfully")
             logger.debug(f"Message is multipart: {msg.is_multipart()}")
@@ -223,7 +263,8 @@ class MimeGenerator:
         output_path: str,
         plain_text: Optional[str] = None,
         from_addr: Optional[str] = None,
-        to_addr: Optional[str] = None
+        to_addr: Optional[str] = None,
+        images: Optional[List] = None
     ) -> Path:
         """Create a message and save it to a file in one step.
         
@@ -236,6 +277,7 @@ class MimeGenerator:
             plain_text: Optional plain text fallback content
             from_addr: 'From' email address
             to_addr: 'To' email address
+            images: Optional list of ImageData objects to attach with CIDs
             
         Returns:
             Path to the saved file
@@ -248,7 +290,8 @@ class MimeGenerator:
             html_content=html_content,
             plain_text=plain_text,
             from_addr=from_addr,
-            to_addr=to_addr
+            to_addr=to_addr,
+            images=images
         )
         return self.save_to_file(msg, output_path)
 
