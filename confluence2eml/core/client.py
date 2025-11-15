@@ -4,7 +4,6 @@ This module provides a wrapper around the confluence-markdown-exporter library
 to extract content from Confluence pages programmatically.
 """
 
-import base64
 import logging
 import re
 import subprocess
@@ -229,30 +228,52 @@ class ConfluenceClient:
                 "Please install it with: pip install requests"
             )
         
-        # Create authentication header
-        auth_string = f"{self.user}:{self.token}"
-        auth_bytes = auth_string.encode('ascii')
-        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        # Create authentication using requests built-in Basic Auth
+        # For Confluence Cloud, use email:token format
+        auth = (self.user, self.token)
+        
         headers = {
-            'Authorization': f'Basic {auth_b64}',
             'Accept': 'application/json',
         }
         
         # API endpoint for getting page content
-        api_url = f"{self.base_url}/wiki/rest/api/content/{page_id}"
+        # For Confluence Cloud: /rest/api/content/{page_id}
+        # For Confluence Server: /rest/api/content/{page_id}
+        # Remove /wiki if present in base_url (it's added automatically by Confluence)
+        api_base = self.base_url.rstrip('/')
+        if api_base.endswith('/wiki'):
+            api_base = api_base[:-5]  # Remove /wiki suffix
+        
+        api_url = f"{api_base}/rest/api/content/{page_id}"
         params = {
             'expand': 'body.storage,version,title,space'
         }
         
         try:
             logger.debug(f"Fetching page from API: {api_url}")
-            response = requests.get(api_url, headers=headers, params=params, timeout=30)
+            logger.debug(f"Using authentication for user: {self.user}")
+            response = requests.get(api_url, auth=auth, headers=headers, params=params, timeout=30)
             
             if response.status_code == 404:
                 raise ConfluencePageNotFoundError(f"Page {page_id} not found")
-            elif response.status_code == 401 or response.status_code == 403:
+            elif response.status_code == 401:
+                error_detail = response.text
+                logger.error(f"Authentication failed. Response: {error_detail}")
                 raise ConfluenceAuthenticationError(
-                    f"Authentication failed (HTTP {response.status_code})"
+                    f"Authentication failed (HTTP 401). Please verify:\n"
+                    f"  - Your email address is correct: {self.user}\n"
+                    f"  - Your API token is valid and not expired\n"
+                    f"  - You're using an API token (not a password)\n"
+                    f"  - The API token has the necessary permissions\n"
+                    f"Server response: {error_detail[:200]}"
+                )
+            elif response.status_code == 403:
+                error_detail = response.text
+                logger.error(f"Authorization failed. Response: {error_detail}")
+                raise ConfluenceAuthenticationError(
+                    f"Authorization failed (HTTP 403). The credentials are valid but "
+                    f"you don't have permission to access this page. "
+                    f"Server response: {error_detail[:200]}"
                 )
             elif response.status_code != 200:
                 raise ConfluenceClientError(
