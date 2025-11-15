@@ -4,6 +4,7 @@ This module provides a wrapper around the confluence-markdown-exporter library
 to extract content from Confluence pages programmatically.
 """
 
+import base64
 import logging
 import re
 import subprocess
@@ -11,6 +12,11 @@ import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse, parse_qs
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 logger = logging.getLogger(__name__)
 
@@ -191,8 +197,8 @@ class ConfluenceClient:
             if self._exporter and hasattr(self._exporter, 'export_page'):
                 return self._export_page_programmatic(page_id)
             else:
-                # Fall back to subprocess approach
-                return self._export_page_subprocess(page_id)
+                # Use direct REST API approach (more reliable than subprocess)
+                return self._export_page_rest_api(page_id)
         except Exception as e:
             if "404" in str(e) or "not found" in str(e).lower():
                 raise ConfluencePageNotFoundError(f"Page {page_id} not found: {e}")
@@ -205,11 +211,147 @@ class ConfluenceClient:
         """Export page using library's programmatic API.
         
         This method will be implemented once we understand the library's API.
-        For now, it falls back to subprocess.
+        For now, it falls back to REST API.
         """
         # TODO: Implement once library API is understood
-        logger.debug("Programmatic API not yet implemented, using subprocess")
-        return self._export_page_subprocess(page_id)
+        logger.debug("Programmatic API not yet implemented, using REST API")
+        return self._export_page_rest_api(page_id)
+    
+    def _export_page_rest_api(self, page_id: str) -> Dict[str, any]:
+        """Export page using Confluence REST API directly.
+        
+        This method uses the Confluence REST API to fetch page content
+        and convert it to markdown format.
+        """
+        if requests is None:
+            raise ConfluenceClientError(
+                "requests library is required but not installed. "
+                "Please install it with: pip install requests"
+            )
+        
+        # Create authentication header
+        auth_string = f"{self.user}:{self.token}"
+        auth_bytes = auth_string.encode('ascii')
+        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        headers = {
+            'Authorization': f'Basic {auth_b64}',
+            'Accept': 'application/json',
+        }
+        
+        # API endpoint for getting page content
+        api_url = f"{self.base_url}/wiki/rest/api/content/{page_id}"
+        params = {
+            'expand': 'body.storage,version,title,space'
+        }
+        
+        try:
+            logger.debug(f"Fetching page from API: {api_url}")
+            response = requests.get(api_url, headers=headers, params=params, timeout=30)
+            
+            if response.status_code == 404:
+                raise ConfluencePageNotFoundError(f"Page {page_id} not found")
+            elif response.status_code == 401 or response.status_code == 403:
+                raise ConfluenceAuthenticationError(
+                    f"Authentication failed (HTTP {response.status_code})"
+                )
+            elif response.status_code != 200:
+                raise ConfluenceClientError(
+                    f"API request failed with status {response.status_code}: {response.text}"
+                )
+            
+            data = response.json()
+            
+            # Extract page information
+            title = data.get('title', f"Page {page_id}")
+            page_url = data.get('_links', {}).get('webui', '')
+            if not page_url.startswith('http'):
+                page_url = f"{self.base_url}/wiki{page_url}" if page_url.startswith('/') else f"{self.base_url}/wiki/{page_url}"
+            
+            # Get body content (in storage format - Confluence's internal format)
+            body_storage = data.get('body', {}).get('storage', {})
+            storage_content = body_storage.get('value', '')
+            
+            # Convert storage format to markdown
+            # This is a simplified conversion - confluence-markdown-exporter does this more thoroughly
+            markdown_content = self._convert_storage_to_markdown(storage_content)
+            
+            # Get attachments if available
+            attachments = []
+            # Note: Attachments would need a separate API call to /rest/api/content/{page_id}/child/attachment
+            
+            return {
+                'markdown': markdown_content,
+                'title': title,
+                'attachments': attachments,
+                'page_id': page_id,
+                'url': page_url or f"{self.base_url}/wiki/pages/viewpage.action?pageId={page_id}",
+            }
+            
+        except requests.exceptions.RequestException as e:
+            raise ConfluenceClientError(f"Failed to connect to Confluence API: {e}")
+        except ConfluencePageNotFoundError:
+            raise
+        except ConfluenceAuthenticationError:
+            raise
+        except Exception as e:
+            raise ConfluenceClientError(f"Failed to extract page content: {e}")
+    
+    def _convert_storage_to_markdown(self, storage_content: str) -> str:
+        """Convert Confluence storage format to Markdown.
+        
+        This is a simplified converter. For production use, consider using
+        confluence-markdown-exporter's conversion logic or a more complete converter.
+        """
+        import html
+        
+        # Basic HTML to Markdown conversion
+        # This is a simplified version - a full converter would handle more cases
+        markdown = storage_content
+        
+        # Decode HTML entities
+        markdown = html.unescape(markdown)
+        
+        # Convert common Confluence/HTML elements to Markdown
+        # Headers
+        markdown = re.sub(r'<h1[^>]*>(.*?)</h1>', r'# \1', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<h2[^>]*>(.*?)</h2>', r'## \1', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<h3[^>]*>(.*?)</h3>', r'### \1', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<h4[^>]*>(.*?)</h4>', r'#### \1', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Bold and italic
+        markdown = re.sub(r'<strong[^>]*>(.*?)</strong>', r'**\1**', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<b[^>]*>(.*?)</b>', r'**\1**', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<em[^>]*>(.*?)</em>', r'*\1*', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<i[^>]*>(.*?)</i>', r'*\1*', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Links
+        markdown = re.sub(r'<a[^>]*href=["\']([^"\']*)["\'][^>]*>(.*?)</a>', r'[\2](\1)', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Code blocks
+        markdown = re.sub(r'<pre[^>]*>(.*?)</pre>', r'```\n\1\n```', markdown, flags=re.IGNORECASE | re.DOTALL)
+        markdown = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Paragraphs
+        markdown = re.sub(r'<p[^>]*>(.*?)</p>', r'\1\n\n', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Line breaks
+        markdown = re.sub(r'<br[^>]*/?>', r'\n', markdown, flags=re.IGNORECASE)
+        
+        # Lists
+        markdown = re.sub(r'<ul[^>]*>', '', markdown, flags=re.IGNORECASE)
+        markdown = re.sub(r'</ul>', '', markdown, flags=re.IGNORECASE)
+        markdown = re.sub(r'<ol[^>]*>', '', markdown, flags=re.IGNORECASE)
+        markdown = re.sub(r'</ol>', '', markdown, flags=re.IGNORECASE)
+        markdown = re.sub(r'<li[^>]*>(.*?)</li>', r'- \1\n', markdown, flags=re.IGNORECASE | re.DOTALL)
+        
+        # Remove remaining HTML tags
+        markdown = re.sub(r'<[^>]+>', '', markdown)
+        
+        # Clean up extra whitespace
+        markdown = re.sub(r'\n{3,}', '\n\n', markdown)
+        markdown = markdown.strip()
+        
+        return markdown
     
     def _export_page_subprocess(self, page_id: str) -> Dict[str, any]:
         """Export page using confluence-markdown-exporter as subprocess.

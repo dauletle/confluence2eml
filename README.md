@@ -4,7 +4,7 @@ A Python utility that converts Atlassian Confluence pages into self-contained Mi
 
 ## Features
 
-- **Confluence Integration**: Extracts content from Confluence pages using the `confluence-markdown-exporter` library
+- **Confluence Integration**: Extracts content from Confluence pages using the Confluence REST API directly
 - **Dual Output**: Always produces both a Markdown file and an EML file
 - **High-Fidelity Conversion**: Preserves formatting, tables, lists, and other Confluence elements
 - **Image Embedding**: Automatically downloads and embeds images as CID attachments for offline viewing
@@ -20,34 +20,72 @@ A Python utility that converts Atlassian Confluence pages into self-contained Mi
 
 ## Installation
 
-### 1. Clone the Repository
+### Prerequisites
+
+- Python 3.7 or higher
+- pip (Python package manager)
+
+### Installation Steps
+
+#### Option 1: Install from Source (Recommended for Development)
+
+1. **Clone the Repository**
 
 ```bash
 git clone <repository-url>
 cd confluence2eml
 ```
 
-### 2. Install Dependencies
+2. **Create a Virtual Environment (Recommended)**
 
-Using pip:
+**On macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+**On Windows (Command Prompt):**
+```cmd
+python -m venv venv
+venv\Scripts\activate
+```
+
+**On Windows (PowerShell):**
+```powershell
+python -m venv venv
+venv\Scripts\Activate.ps1
+```
+
+3. **Install Dependencies**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or install in development mode:
+Or install in development mode (includes the package itself):
 
 ```bash
 pip install -e .
 ```
 
+#### Option 2: Install as a Package
+
+If the package is available on PyPI:
+
+```bash
+pip install confluence2eml
+```
+
 ### Required Dependencies
 
-- `confluence-markdown-exporter` - Confluence API client and content extraction
-- `markdown` - Markdown to HTML conversion
-- `beautifulsoup4` - HTML parsing and sanitization
-- `premailer` - CSS inlining for email compatibility
-- `requests` - HTTP client for downloading images and attachments
+The following packages are automatically installed when you install the requirements:
+
+- `requests>=2.31.0` - HTTP client for Confluence API and image downloads
+- `markdown>=3.4.0` - Markdown to HTML conversion
+- `beautifulsoup4>=4.12.0` - HTML parsing and sanitization
+- `premailer>=3.10.0` - CSS inlining for email compatibility
+
+> **Note:** The tool uses the Confluence REST API directly and does not require the `confluence-markdown-exporter` package to be installed. All functionality is self-contained.
 
 ## Configuration
 
@@ -221,7 +259,7 @@ The tool always produces two output files:
 
 ## How It Works
 
-1. **Content Extraction**: Uses `confluence-markdown-exporter` to fetch page content from Confluence API
+1. **Content Extraction**: Uses the Confluence REST API directly to fetch page content
 2. **Markdown Saving**: Saves the extracted Markdown content to a file
 3. **HTML Conversion**: Converts Markdown to HTML with proper formatting
 4. **HTML Sanitization**: Removes unsafe elements and ensures email compatibility
@@ -302,5 +340,5 @@ For more information about the MIT License, visit: https://opensource.org/licens
 
 ## Acknowledgments
 
-This project leverages the [`confluence-markdown-exporter`](https://github.com/Spenhouet/confluence-markdown-exporter) library for Confluence API interactions.
+This project uses the Confluence REST API directly for content extraction, providing a self-contained solution without external dependencies for API interactions.
 

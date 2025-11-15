@@ -5,17 +5,14 @@ from setuptools import setup, find_packages
 # Core dependencies required to run the application
 # Note: These should match the dependencies in pyproject.toml and requirements.txt
 INSTALL_REQUIRES = [
-    # Confluence API client and content extraction
-    "confluence-markdown-exporter>=0.1.0",
+    # HTTP client for Confluence API and image downloads
+    "requests>=2.31.0",
     # Markdown to HTML conversion
     "markdown>=3.4.0",
     # HTML parsing and sanitization
     "beautifulsoup4>=4.12.0",
     # CSS inlining for email client compatibility
     "premailer>=3.10.0",
-    # HTTP client for downloading images and attachments
-    # (Required for future image embedding and attachment processing features)
-    "requests>=2.31.0",
 ]
 
 # Development dependencies (optional)
