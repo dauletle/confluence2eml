@@ -59,11 +59,31 @@ The tool requires authentication to access your Confluence instance. You can pro
 
 Set the following environment variables:
 
+**On macOS/Linux:**
+
 ```bash
 export CONFLUENCE_USER="your_email@example.com"
 export CONFLUENCE_TOKEN="your_api_token"
 export CONFLUENCE_URL="https://yourcompany.atlassian.net"  # Optional, can be inferred from URL
 ```
+
+**On Windows (Command Prompt):**
+
+```cmd
+set CONFLUENCE_USER=your_email@example.com
+set CONFLUENCE_TOKEN=your_api_token
+set CONFLUENCE_URL=https://yourcompany.atlassian.net
+```
+
+**On Windows (PowerShell):**
+
+```powershell
+$env:CONFLUENCE_USER="your_email@example.com"
+$env:CONFLUENCE_TOKEN="your_api_token"
+$env:CONFLUENCE_URL="https://yourcompany.atlassian.net"
+```
+
+> **Note:** Environment variables set in a terminal session are temporary and will be lost when you close the terminal. To make them persistent, add them to your shell profile (`.bashrc`, `.zshrc`, etc. on macOS/Linux) or set them as system/user environment variables on Windows.
 
 #### Option 2: Command-Line Arguments
 
@@ -104,20 +124,74 @@ If you need to use an app that doesn't currently support API tokens with scopes,
 
 ## Usage
 
-### Basic Usage
+### Running the Script
+
+You can run the script in two ways:
+
+**Option 1: Using the installed command (if installed with `pip install -e .`):**
 
 ```bash
 confluence2eml --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
 ```
 
-### With Explicit Credentials
+**Option 2: Using Python module (recommended for development):**
 
 ```bash
-confluence2eml \
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
+```
+
+**On Windows:**
+
+```cmd
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
+```
+
+### Basic Usage (with Environment Variables)
+
+If you've set environment variables (see Configuration section above):
+
+**On macOS/Linux:**
+
+```bash
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
+```
+
+**On Windows (Command Prompt):**
+
+```cmd
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
+```
+
+**On Windows (PowerShell):**
+
+```powershell
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml"
+```
+
+### With Explicit Credentials
+
+If you prefer to provide credentials directly via command-line arguments:
+
+**On macOS/Linux:**
+
+```bash
+python -m confluence2eml.main \
   --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" \
   --output "export.eml" \
   --user "your_email@example.com" \
   --token "your_api_token"
+```
+
+**On Windows (Command Prompt):**
+
+```cmd
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml" --user "your_email@example.com" --token "your_api_token"
+```
+
+**On Windows (PowerShell):**
+
+```powershell
+python -m confluence2eml.main --url "https://yourcompany.atlassian.net/wiki/spaces/SPACE/pages/123456/Page+Title" --output "export.eml" --user "your_email@example.com" --token "your_api_token"
 ```
 
 ### Command-Line Arguments
@@ -160,10 +234,18 @@ The tool always produces two output files:
 
 ### Export a Single Page
 
+**On macOS/Linux:**
+
 ```bash
-confluence2eml \
+python -m confluence2eml.main \
   --url "https://company.atlassian.net/wiki/spaces/ENG/pages/789012/API+Documentation" \
   --output "api_docs.eml"
+```
+
+**On Windows:**
+
+```cmd
+python -m confluence2eml.main --url "https://company.atlassian.net/wiki/spaces/ENG/pages/789012/API+Documentation" --output "api_docs.eml"
 ```
 
 This will create:
@@ -177,7 +259,10 @@ This will create:
 If you encounter authentication errors:
 - Verify your API token is correct
 - Ensure your email address matches your Confluence account
-- Check that environment variables are set correctly (use `echo $CONFLUENCE_USER` to verify)
+- Check that environment variables are set correctly:
+  - **On macOS/Linux:** Use `echo $CONFLUENCE_USER` to verify
+  - **On Windows (Command Prompt):** Use `echo %CONFLUENCE_USER%` to verify
+  - **On Windows (PowerShell):** Use `echo $env:CONFLUENCE_USER` to verify
 
 ### URL Format Issues
 

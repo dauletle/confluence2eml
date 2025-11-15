@@ -12,6 +12,14 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+# Add parent directory to path to allow running this script directly
+# This ensures the confluence2eml package can be imported when running
+# the script directly (e.g., python main.py or python confluence2eml/main.py)
+_script_dir = Path(__file__).resolve().parent
+_project_root = _script_dir.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
 from confluence2eml.core.client import ConfluenceClient, URLResolver, ConfluenceClientError
 from confluence2eml.core.html_processor import HtmlProcessor, HtmlProcessorError
 from confluence2eml.core.css_inliner import CssInliner, CssInlinerError
