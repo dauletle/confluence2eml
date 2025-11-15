@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import List, Optional
 
 try:
-    from confluence2eml.core.image_processor import ImageData
+    from .image_processor import ImageData
 except ImportError:
     ImageData = None  # type: ignore
 

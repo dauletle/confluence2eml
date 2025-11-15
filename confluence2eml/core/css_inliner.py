@@ -15,7 +15,7 @@ try:
 except ImportError:
     Premailer = None  # type: ignore
 
-from confluence2eml.core.utils import wrap_html_with_css, load_email_css
+from .utils import wrap_html_with_css, load_email_css
 
 logger = logging.getLogger(__name__)
 

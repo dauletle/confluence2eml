@@ -10,36 +10,36 @@ This package contains the core functionality modules:
 - mime_generator: MIME message generation and EML file creation
 """
 
-from confluence2eml.core.client import (
+from .client import (
     ConfluenceClient,
     ConfluenceClientError,
     ConfluenceAuthenticationError,
     ConfluencePageNotFoundError,
     URLResolver,
 )
-from confluence2eml.core.html_processor import (
+from .html_processor import (
     HtmlProcessor,
     HtmlProcessorError,
 )
-from confluence2eml.core.css_inliner import (
+from .css_inliner import (
     CssInliner,
     CssInlinerError,
 )
-from confluence2eml.core.image_processor import (
+from .image_processor import (
     ImageProcessor,
     ImageProcessorError,
     ImageDownloadError,
     ImageData,
 )
-from confluence2eml.core.markdown_processor import (
+from .markdown_processor import (
     MarkdownProcessor,
     MarkdownProcessorError,
 )
-from confluence2eml.core.mime_generator import (
+from .mime_generator import (
     MimeGenerator,
     MimeGeneratorError,
 )
-from confluence2eml.core.utils import (
+from .utils import (
     sanitize_filename,
     generate_markdown_filename,
     save_markdown_file,
