@@ -216,23 +216,29 @@ class ConfluenceClient:
         
         This is a fallback method when programmatic API is not available.
         """
+        import sys
+        
         # Create a temporary file for output
         with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as tmp_file:
             output_path = tmp_file.name
         
         try:
-            # Build the command
-            # Note: This assumes confluence-markdown-exporter CLI interface
-            # We'll need to adjust based on actual CLI interface
+            # Build the command using Python module execution
+            # confluence-markdown-exporter is a Python package, so we need to run it as a module
+            # Use viewpage URL format which only requires page ID (no space name needed)
+            page_url = f"{self.base_url}/wiki/pages/viewpage.action?pageId={page_id}"
+            
             cmd = [
-                'confluence-markdown-exporter',
-                '--url', f"{self.base_url}/wiki/spaces/SPACE/pages/{page_id}",
+                sys.executable,
+                '-m',
+                'confluence_markdown_exporter',
+                '--url', page_url,
                 '--output', output_path,
                 '--user', self.user,
                 '--token', self.token,
             ]
             
-            logger.debug(f"Running command: {' '.join(cmd[:4])}...")
+            logger.debug(f"Running command: {sys.executable} -m confluence_markdown_exporter ...")
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -242,9 +248,15 @@ class ConfluenceClient:
             
             if result.returncode != 0:
                 error_msg = result.stderr or result.stdout
+                logger.error(f"Subprocess failed with return code {result.returncode}")
+                logger.error(f"stderr: {result.stderr}")
+                logger.error(f"stdout: {result.stdout}")
                 raise ConfluenceClientError(f"Export failed: {error_msg}")
             
             # Read the markdown file
+            if not Path(output_path).exists():
+                raise ConfluenceClientError(f"Output file was not created: {output_path}")
+            
             markdown_content = Path(output_path).read_text(encoding='utf-8')
             
             # Extract metadata (this would need to be parsed from output or API)
@@ -254,7 +266,7 @@ class ConfluenceClient:
                 'title': f"Page {page_id}",  # Will be extracted from actual API
                 'attachments': [],  # Will be populated from API
                 'page_id': page_id,
-                'url': f"{self.base_url}/wiki/spaces/SPACE/pages/{page_id}",
+                'url': page_url,
             }
             
         finally:
